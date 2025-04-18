@@ -1,8 +1,8 @@
 class Rcptpixie < Formula
   desc "A command-line tool that automatically renames PDF receipts using AI-powered text extraction"
   homepage "https://github.com/scottdensmore/rcptpixie"
-  url "https://github.com/scottdensmore/rcptpixie/archive/refs/tags/v0.1.4.tar.gz"
-  sha256 "c93dca38a706fc7597fff147229eb148b758885c4d5c12b68bacadedb313c5db"
+  url "https://github.com/scottdensmore/rcptpixie/archive/refs/tags/v0.1.5.tar.gz"
+  sha256 "8259dce943286fa874c588236c2b48e396bf1bdec05f01a3562e14c426e8da16"
   license "MIT"
 
   depends_on "go" => :build
