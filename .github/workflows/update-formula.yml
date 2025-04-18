@@ -1,0 +1,45 @@
+name: Update Formula
+
+on:
+  repository_dispatch:
+    types: [update-formula]
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v4
+        with:
+          repository: scottdensmore/homebrew-tap
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest release
+        id: release
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/scottdensmore/rcptpixie/releases/latest | grep tag_name | cut -d '"' -f 4)
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download source
+        run: |
+          curl -L "https://github.com/scottdensmore/rcptpixie/archive/refs/tags/${{ steps.release.outputs.version }}.tar.gz" -o rcptpixie.tar.gz
+
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          SHA256=$(shasum -a 256 rcptpixie.tar.gz | cut -d ' ' -f 1)
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+
+      - name: Update formula
+        run: |
+          sed -i "s/url \".*\"/url \"https:\/\/github.com\/scottdensmore\/rcptpixie\/archive\/refs\/tags\/${{ steps.release.outputs.version }}.tar.gz\"/" Formula/rcptpixie.rb
+          sed -i "s/sha256 \".*\"/sha256 \"${{ steps.sha256.outputs.sha256 }}\"/" Formula/rcptpixie.rb
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add Formula/rcptpixie.rb
+          git commit -m "Update rcptpixie to ${{ steps.release.outputs.version }}"
+          git push 
